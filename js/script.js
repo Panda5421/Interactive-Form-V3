@@ -200,6 +200,7 @@ activityCheckboxes.forEach(item => {
 	});
 });
 
+//validates required form fields in real time
 name.addEventListener('input', e => {
 	isValid('name', isNameValid());
 });

@@ -9,9 +9,14 @@ const activityCheckboxes = document.querySelectorAll('#activities input[type="ch
 let total = document.querySelector('#activities-cost').textContent;
 let totalCost = parseInt(total.match(/([\d*])$/));
 const paymentMethods = document.querySelector('#payment');
+const name = document.querySelector('#name');
+const email = document.querySelector('#email');
+const cardNum = document.querySelector('#cc-num');
+const zip = document.querySelector('#zip');
+const cvv = document.querySelector('#cvv');
 
 //autofocuses on first input field on page load
-document.querySelector('input[type="text"]').focus();
+name.focus();
 //hides input field for 'Other' job role
 otherJobRoles.style.display = 'none';
 //disables color dropdow
@@ -68,14 +73,30 @@ designSelect.addEventListener('change', e => {
 	}
 });
 
+//updates available activities based on whether they conflict with
+//the user's chosen activities
+function updateActivities(activity, checked) {
+	activityCheckboxes.forEach(act => {
+		const time = act.getAttribute('data-day-and-time');
+		if(checked && act !== activity && activity.getAttribute('data-day-and-time') === time) {
+			act.disabled = true;
+			act.parentNode.classList.add('disabled');
+		} else if(act !== activity && activity.getAttribute('data-day-and-time') === time) {
+			act.disabled = false;
+			act.parentNode.classList.remove('disabled');			}
+	});
+}
 //listens for a change in the state of the activities section and
 //adjusts total price depending on the activities chosen
 activitySection.addEventListener('change', e => {
 	let dataCost = parseInt(e.target.getAttribute('data-cost'));
+	isValid('activities-box', isActivitiesValid());
 	if(e.target.checked) {
+		updateActivities(e.target, true);
 		totalCost += dataCost;
 	} else {
-			totalCost -= dataCost;
+		updateActivities(e.target, false);
+		totalCost -= dataCost;
 	}
 	document.querySelector('#activities-cost').textContent = total.replace(/([\d*])$/, totalCost);
 });
@@ -100,23 +121,18 @@ paymentMethods.addEventListener('change', e => {
 
 //helper functions to check if required form fields are valid
 function isNameValid() {
-	const name = document.querySelector('#name');
 	return name.value !== '' && !/^[ ]*$/.test(name.value);
 }
 function isEmailValid() {
-	const email = document.querySelector('#email');
 	return email.value !== '' && /^\w+@\w+\.com$/.test(email.value);
 }
 function isCardNumValid() {
-	const cardNum = document.querySelector('#cc-num');
 	return cardNum.value !== '' && /^\d{13,16}$/.test(cardNum.value);
 }
 function isZipValid() {
-	const zip = document.querySelector('#zip');
 	return zip.value !== '' && /^\d{5}$/.test(zip.value);
 }
 function isCvvValid() {
-	const cvv = document.querySelector('#cvv');
 	return cvv.value !== '' && /^\d{3}$/.test(cvv.value);
 }
 function isActivitiesValid() {
@@ -182,4 +198,20 @@ activityCheckboxes.forEach(item => {
 	item.addEventListener('blur', e => {
 		document.querySelector('.focus').classList.remove('focus');
 	});
+});
+
+name.addEventListener('input', e => {
+	isValid('name', isNameValid());
+});
+email.addEventListener('input', e => {
+	isValid('email', isEmailValid());
+});
+cardNum.addEventListener('input', e => {
+	isValid('cc-num', isCardNumValid());
+});
+zip.addEventListener('input', e => {
+	isValid('zip', isZipValid());
+});
+cvv.addEventListener('input', e => {
+	isValid('cvv', isCvvValid());
 });

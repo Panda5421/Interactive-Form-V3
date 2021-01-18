@@ -123,8 +123,8 @@ paymentMethods.addEventListener('change', e => {
 	updatePayment(e.target.value);
 });
 
-//helper function adjusts what error is shown depending on how
-//the users input doesn't meet the requirements
+//helper function adjusts what error message is shown depending on how
+//the user's input doesn't meet the requirements
 function adjustHints(element, expression) {
 	const formatHint = element.parentNode.lastElementChild;
 	let elementName = element.getAttribute('id');

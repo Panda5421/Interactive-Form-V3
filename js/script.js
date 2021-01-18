@@ -14,6 +14,10 @@ const email = document.querySelector('#email');
 const cardNum = document.querySelector('#cc-num');
 const zip = document.querySelector('#zip');
 const cvv = document.querySelector('#cvv');
+const emailFormatHint = email.parentNode.lastElementChild;
+const cardFormatHint = cardNum.parentNode.lastElementChild;
+const zipFormatHint = zip.parentNode.lastElementChild;
+const cvvFormatHint = cvv.parentNode.lastElementChild;
 
 //autofocuses on first input field on page load
 name.focus();
@@ -114,25 +118,71 @@ function updatePayment(method) {
 }
 
 //listens for a change in the payment method chosen and 
-//calls on helper method to update payment field
+//calls on helper function to update payment field
 paymentMethods.addEventListener('change', e => {
 	updatePayment(e.target.value);
 });
 
+//helper function adjusts what error is shown depending on how
+//the users input doesn't meet the requirements
+function adjustHints(element, expression) {
+	const formatHint = element.parentNode.lastElementChild;
+	let elementName = element.getAttribute('id');
+	if(element.value == '' || /^[ ]*$/.test(element.value)) {
+		const emptyHint = document.createElement('SPAN');
+		element.parentNode.removeChild(element.parentNode.lastElementChild);
+		elementName = elementName[0].toUpperCase() + elementName.substring(1);
+		switch(elementName) {
+			case 'Cc-num':
+				emptyHint.textContent = 'Card number cannot be blank';
+				break;
+			case 'Zip':
+				emptyHint.textContent = 'Zip Code cannot be blank';
+				break;
+			case 'Cvv':
+				emptyHint.textContent = 'CVV cannot be blank';
+				break;
+			default:
+				emptyHint.textContent = `${elementName} cannot be blank`;
+				break;
+		}
+		element.parentNode.appendChild(emptyHint);
+	} else if(!expression) {
+		element.parentNode.removeChild(element.parentNode.lastElementChild);
+		switch(elementName) {
+			case 'email':
+				element.parentNode.appendChild(emailFormatHint);
+				break;
+			case 'cc-num':
+				element.parentNode.appendChild(cardFormatHint);
+				break;
+			case 'zip':
+				element.parentNode.appendChild(zipFormatHint);
+				break;
+			case 'cvv':
+				element.parentNode.appendChild(cvvFormatHint);
+				break;
+		}
+	}
+}
 //helper functions to check if required form fields are valid
 function isNameValid() {
 	return name.value !== '' && !/^[ ]*$/.test(name.value);
 }
 function isEmailValid() {
+	adjustHints(email, /^\w+@\w+\.com$/.test(email.value));
 	return email.value !== '' && /^\w+@\w+\.com$/.test(email.value);
 }
 function isCardNumValid() {
+	adjustHints(cardNum, /^\d{13,16}$/.test(cardNum.value));
 	return cardNum.value !== '' && /^\d{13,16}$/.test(cardNum.value);
 }
 function isZipValid() {
+	adjustHints(zip, /^\d{5}$/.test(zip.value));
 	return zip.value !== '' && /^\d{5}$/.test(zip.value);
 }
 function isCvvValid() {
+	adjustHints(cvv, /^\d{3}$/.test(cvv.value));
 	return cvv.value !== '' && /^\d{3}$/.test(cvv.value);
 }
 function isActivitiesValid() {
